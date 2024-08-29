@@ -1,10 +1,12 @@
 const express = require('express')
+const cors = require('cors');
 require("./db_conn.js");
 
 const app = express();
 const port = 5000
 
 //middlewares
+app.use(cors())
 app.use(express.json())
 
 //Available routes
