@@ -15,6 +15,7 @@ router.post('/createuser', [
 ], async (req, res) => {
     //If there are errors, return Bad request and the errors
     const errors = validationResult(req);
+    let success = false;
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
@@ -22,7 +23,7 @@ router.post('/createuser', [
     try {
         let user = await User.findOne({ email: req.body.email });
         if (user) {
-            return res.status(400).json({ error: "sorry a user with this email already exists" });
+            return res.status(400).json({success, error: "sorry a user with this email already exists" });
         }
         const secPass = await bcrypt.hash(req.body.password, 10)
         user = await User.create({
@@ -37,7 +38,8 @@ router.post('/createuser', [
             }
         }
         const authToken = jwt.sign(data, process.env.JWT_KEY);
-        res.json(authToken);
+        success= true;
+        res.json({success, authToken});
 
     } catch (error) {
         console.error(error.message);
@@ -57,15 +59,16 @@ router.post('/login', [
     }
 
     const { email, password } = req.body;
+    let success = false;
     try {
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ error: "Email or password is wrong" });
+            return res.status(400).json({success, error: "Email or password is wrong" });
         }
 
         const passwordCompare = await bcrypt.compare(password, user.password);
         if (!passwordCompare) {
-            return res.status(400).json({ error: "Email or password is wrong" });
+            return res.status(400).json({success, error: "Email or password is wrong" });
         }
         //setting jwt token 
         const data = {
@@ -74,7 +77,8 @@ router.post('/login', [
             }
         }
         const authToken = jwt.sign(data, process.env.JWT_KEY);
-        res.json(authToken);
+        success = true;
+        res.json({success, authToken});
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
