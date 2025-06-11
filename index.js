@@ -8,7 +8,10 @@ const port = 5000
 //middlewares
 app.use(cors())
 app.use(express.json())
-
+//for deployment
+app.get("/",(req,res)=>{
+  res.json("hello");
+})
 //Available routes
 app.use('/api/auth',require('./routes/userAuth.js'))
 app.use('/api/notes',require('./routes/notesAuth.js'))
